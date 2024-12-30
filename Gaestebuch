@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <title>Gästebuch</title>
+  <style>
+    h1 { margin-bottom: 75px; }
+
+    body { font-family: Arial, Helvetica, sans-serif; }
+
+    textarea { height: 100px; width: 400px; display: block; margin-bottom: 15px; margin-top:15px}
+
+    .ersteller { color: grey; text-align: right; margin-bottom: 50px; }
+    
+    .beitrag { background-color: rgb(239, 238, 238); margin-top: 10px; padding-bottom: 10px;}
+
+    .edit { color: blue; border: none; cursor: pointer; font-style: italic; float: right; }
+
+    .senden { cursor: pointer; display: block; margin-top: 20px; margin-bottom: 50px; }
+
+    .stars {
+      display: flex;
+      gap: 5px;
+      margin: 0px;
+      
+    }
+    .star {
+      font-size: 24px;
+      cursor: pointer;
+      color: grey; /* Farbe der unbewerteten Sterne */
+    }
+    .star.selected {
+      color: gold; /* Farbe der bewerteten Sterne */
+    }
+
+    .neueSterne{
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Gästebuch und Bewertungen</h1>
+  <p id="einleitung"> Schreiben Sie Ihre Bewertung hier:</p>
+  <textarea placeholder="Maximal 500 Zeichen" maxlength="500"></textarea>
+  <p id="rooms">Die Räume:</p>
+  <div id="neueBewertungRaum"></div>
+  <p id="team">Das Team:</p>
+  <div id="neueBewertungTeam"></div>
+  <p id="work">Unsere Arbeit:</p>
+  <div id="neueBewertungArbeit"></div>
+
+  <button class="senden">Veröffentlichen</button>
+
+  <div id="neuerBeitrag"></div>
+
+    <!-- Bestehende Bewertungen direkt in HTML -->
+  
+    <div class="beitrag">
+      <p>Die Räume sind wirklich sauber und gut organisiert!</p>
+      <div>
+        <p class="neueSterne">Räume:</p>
+        <div class="stars">
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+        </div>
+      </div>
+      <div>
+        <p class="neueSterne">Team:</p>
+        <div class="stars">
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star">★</span>
+        </div>
+      </div>
+      <div>
+        <p class="neueSterne">Arbeit:</p>
+        <div class="stars">
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+        </div>
+      </div>
+    </div>
+    <p class="ersteller">Max Mustermann, 30.12.2024</p>
+
+    <div class="beitrag">
+      <p>Das Team war freundlich, aber der Service könnte schneller sein.</p>
+      <div>
+        <p class="neueSterne">Räume:</p>
+        <div class="stars">
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+      </div>
+      <div>
+        <p class="neueSterne">Team:</p>
+        <div class="stars">
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+      </div>
+      <div>
+        <p class="neueSterne">Arbeit:</p>
+        <div class="stars">
+          <span class="star selected">★</span>
+          <span class="star selected">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+      </div>
+    </div>
+    <p class="ersteller">Anna Müller, 29.12.2024</p>
+  
+</body>
+
+
+<script>
+  "use strict";
+
+  // Globale Datenstruktur für Bewertungen
+  const bewertungen = {
+    raum: 0,
+    team: 0,
+    arbeit: 0,
+  };
+
+  // Funktion zum Erstellen von Sternebewertungen
+  function neueBewertungStars(containerId, bewertungKey) {
+    const container = document.getElementById(containerId);
+    const starsContainer = document.createElement('div');
+    starsContainer.classList.add('stars');
+    
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement('span');
+      star.classList.add('star');
+      star.textContent = '★'; 
+      star.dataset.value = i;
+      starsContainer.appendChild(star);
+
+      // Event-Listener für Sternebewertung
+      star.addEventListener('click', function () {
+        setRating(starsContainer, i);
+        bewertungen[bewertungKey] = i; // Speichere die Bewertung
+        console.log(`Aktuelle Bewertung für ${bewertungKey}: ${i} Sterne`);
+      });   
+    }
+
+    container.appendChild(starsContainer);
+  }
+
+  // Funktion zum Setzen der Sternebewertung
+  function setRating(starsContainer, rating) {
+    const stars = starsContainer.querySelectorAll('.star');
+    stars.forEach(star => {
+      if (star.dataset.value <= rating) {
+        star.classList.add('selected');
+      } else {
+        star.classList.remove('selected');
+      }
+    });
+  }
+
+  function addStarsToCategory(categoryName, rating, parentElement) {
+    const categoryContainer = document.createElement('div');
+  
+      // Kategorie-Überschrift
+      const categoryTitle = document.createElement('div');
+      categoryTitle.textContent = categoryName;
+      categoryContainer.appendChild(categoryTitle);
+
+      // Sternecontainer
+      const starsContainer = document.createElement('div');
+      starsContainer.classList.add('stars');
+
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('span');
+        star.classList.add('star');
+        star.textContent = '★';
+        if (i <= rating) {
+          star.classList.add('selected'); // Gelbe Sterne
+        }
+        starsContainer.appendChild(star);
+      }
+
+      categoryContainer.appendChild(starsContainer);
+      parentElement.appendChild(categoryContainer);
+    }
+
+
+  // Initialisiere Sternebewertungen
+  neueBewertungStars('neueBewertungRaum', 'raum');
+  neueBewertungStars('neueBewertungTeam', 'team');
+  neueBewertungStars('neueBewertungArbeit', 'arbeit');
+
+  // Beitrag hinzufügen
+  const text = document.querySelector('textarea');
+  const sendenButton = document.querySelector('.senden');
+  const einleitung = document.getElementById('einleitung');
+  const container = document.getElementById('neuerBeitrag');
+
+  sendenButton.addEventListener('click', post);
+
+  function post() {
+    if (text.value === '') {
+      alert('Sie versuchen einen leeren Beitrag zu veröffentlichen. \nDas geht leider nicht :-(');
+      return;
+    }
+
+    // Elemente verstecken
+    text.style.display = 'none';
+    sendenButton.style.display = 'none';
+    einleitung.style.display = 'none';
+
+    document.getElementById('neueBewertungRaum').style.display = 'none';
+    document.getElementById('neueBewertungTeam').style.display = 'none';
+    document.getElementById('neueBewertungArbeit').style.display = 'none';
+    document.getElementById('rooms').style.display = 'none';
+    document.getElementById('team').style.display = 'none';
+    document.getElementById('work').style.display = 'none';
+
+    // Neuen Beitrag erstellen
+    const paragraph = document.createElement('p');
+    paragraph.classList.add('beitrag');
+    paragraph.textContent = text.value;
+
+    const editButton = document.createElement('button');
+    editButton.classList.add('edit');
+    editButton.textContent = 'Bearbeiten';
+
+    const ersteller = document.createElement('p');
+    ersteller.classList.add('ersteller');
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('de-DE');
+    ersteller.innerHTML = `Ana Banana, ${formattedDate}`;
+
+ 
+   // Bewertungsergebnisse hinzufügen
+    const bewertungContainer = document.createElement('div');
+    bewertungContainer.classList.add('neueSterne');
+    addStarsToCategory('Unsere Räume:', bewertungen.raum, bewertungContainer);
+    addStarsToCategory('Unser Team:', bewertungen.team, bewertungContainer);
+    addStarsToCategory('Unsere Arbeit:', bewertungen.arbeit, bewertungContainer);
+
+    // Elemente hinzufügen
+    container.innerHTML = ''; // Sicherstellen, dass alte Inhalte entfernt werden
+    container.appendChild(paragraph);
+    paragraph.appendChild(bewertungContainer);
+    container.appendChild(editButton);
+    container.appendChild(ersteller);
+
+    // Event-Listener für "Bearbeiten"
+    editButton.addEventListener('click', function () {
+      edit(paragraph, editButton, ersteller);
+    });
+
+    // Textarea leeren
+    text.value = '';
+  }
+
+  function edit(paragraph, editButton, ersteller) {
+    // Verstecke bestehende Elemente
+    paragraph.style.display = 'none';
+    editButton.style.display = 'none';
+    ersteller.style.display = 'none';
+
+    // Bearbeitungs-UI erstellen
+    const textarea = document.createElement('textarea');
+    
+    textarea.textContent = paragraph.textContent;
+
+    document.getElementById('neueBewertungRaum').style.display = 'block';
+    document.getElementById('neueBewertungTeam').style.display = 'block';
+    document.getElementById('neueBewertungArbeit').style.display = 'block';
+    document.getElementById('rooms').style.display = 'block';
+    document.getElementById('team').style.display = 'block';
+    document.getElementById('work').style.display = 'block';
+
+    const saveButton = document.createElement('button');
+    saveButton.classList.add('senden');
+    saveButton.textContent = 'Speichern';
+
+    // UI hinzufügen
+    container.appendChild(textarea);
+    container.appendChild(saveButton);
+
+    // Event-Listener für "Speichern"
+    saveButton.addEventListener('click', function () {
+      paragraph.textContent = textarea.value;
+
+      // Entferne Bearbeitungs-User-Interface
+      textarea.remove();
+      saveButton.remove();
+
+      // Zeige ursprüngliche Elemente wieder an
+      paragraph.style.display = 'block';
+      editButton.style.display = 'block';
+      ersteller.style.display = 'block';
+    });
+  }
+</script>
